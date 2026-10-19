@@ -212,7 +212,15 @@ def main_worker(gpu, ngpus_per_node, log_queue, args):
         wandb.save(params_file)
         logging.debug('Finished loading wandb.')
 
-    for epoch in range(start_epoch, args.epochs):
+    run_end_epoch = args.epochs
+
+    if args.max_epochs_this_run > 0:
+        run_end_epoch = min(
+            args.epochs,
+            start_epoch + args.max_epochs_this_run
+        )
+
+    for epoch in range(start_epoch, run_end_epoch):
         if args.gpu == 0:
             logging.info(f'Start epoch {epoch}')
         train(model, img2text, data, epoch, optimizer, scaler, scheduler, args, writer)
